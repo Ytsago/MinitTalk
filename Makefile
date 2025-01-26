@@ -9,7 +9,7 @@ CC = cc
 AR = ar
 ARFLAG = -rcs
 
-FILE = print_bit.c
+FILE = client.c
 
 SFILE = get_signal.c
 
@@ -29,7 +29,7 @@ OBJS = $(FILE:%.c=$(OBJDIR)%.o)
 
 SOBJS = $(SFILE:%.c=$(OBJDIR)%.o)
 
-INC = 
+INC = minitalk.h
 
 NAME = client
 
@@ -45,7 +45,7 @@ $(SNAME) : $(SOBJS)
 	@echo "$(YELLOW)Creating final product : $(BLUE)$@...$(RESET)"
 	@$(CC) $(CFLAGS) $^ $(LIB) -o $@ && echo "$(GREEN)$@ Created successfully !$(RESET)"
 
-$(OBJDIR)%.o: $(SRCDIR)%.c $(LIB) | $(OBJDIR)
+$(OBJDIR)%.o: $(SRCDIR)%.c $(LIB) $(INCDIR)$(INC) | $(OBJDIR)
 	@echo "$(YELLOW)Compiling...$(RESET)"
 	$(CC) -c $(CFLAGS) -I $(INCDIR) -I $(LIB_D)$(INCDIR) $< -o $@
 

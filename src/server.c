@@ -1,22 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minitalk.h                                         :+:      :+:    :+:   */
+/*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: secros <secros@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/23 17:46:54 by secros            #+#    #+#             */
-/*   Updated: 2025/01/26 10:21:10 by secros           ###   ########.fr       */
+/*   Created: 2025/01/26 12:16:28 by secros            #+#    #+#             */
+/*   Updated: 2025/01/26 12:17:55 by secros           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINITALK_H
-# define MINITALK_H
+#include "minitalk.h"
 
-# define TIMEOUT 10000
-
-# include "libft.h"
-# include <signal.h>
-# include "ft_printf.h"
-
-#endif
+void	signal_handler(int sig_num, siginfo_t *info, void *context)
+{
+	
+}
