@@ -6,23 +6,23 @@
 /*   By: secros <secros@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:15 by secros            #+#    #+#             */
-/*   Updated: 2025/01/24 18:49:37 by secros           ###   ########.fr       */
+/*   Updated: 2025/01/26 01:57:58 by secros           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include <signal.h>
-#include "ft_printf.h"
 #include "minitalk.h"
 
 char	bit;
 
-void	catch_int(int sig_num)
+void	catch_int(int sig_num, siginfo_t *sender, void *context)
 {
-	if (sig_num == 10)
+	(void) context;
+	if (sig_num == SIGUSR1)
 		bit = '0';
-	else if (sig_num == 12)
+	else if (sig_num == SIGUSR2)
 		bit = '1';
+	usleep(100);
+	kill(sender->si_pid, SIGUSR1);
 }
 
 char	bit_to_char(char *c)
@@ -36,10 +36,8 @@ char	bit_to_char(char *c)
 	{
 		if (c[i] == '0')
 			output |= (0 << i);
-			// ft_printf("%c, ", c[i]);
 		if (c[i] == '1')
 			output |= (1 << i);
-			// ft_printf("%c, ", c[i]);
 		i++;
 	}
 	return (output);
@@ -56,26 +54,29 @@ int	collect_bits(char bits[9])
 	return (i);
 }
 
-/* void	print_messgae(char c)
+void	signal_open(struct sigaction *sender)
 {
-	static char *str;
-	int	i;
-
-	i = 0;
-} */
+	sigemptyset(&sender->sa_mask);
+	sigaddset(&sender->sa_mask, SIGUSR1);
+	sigaddset(&sender->sa_mask, SIGUSR2);
+	sender->sa_sigaction = &catch_int;
+	sender->sa_flags = SA_SIGINFO;
+	sigaction(SIGUSR1, sender, NULL);
+	sigaction(SIGUSR2, sender, NULL);
+}
 
 int main()
 {
 	char	bits[9];
+	struct sigaction	sender;
 
 	bits[8] = '\0';
 	bit = -1;
 	ft_printf("Server PID : [%d]\n", getpid());
-	signal(SIGUSR1, catch_int);
-	signal(SIGUSR2, catch_int);
+	signal_open(&sender);
 	while (1)
 	{
-		if (bit != -1)
+		if (bit == '0' || bit == '1')
 		{
 			if (collect_bits(bits) == 8)
 				ft_printf("%c", bit_to_char(bits));
