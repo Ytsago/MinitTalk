@@ -6,31 +6,31 @@
 /*   By: secros <secros@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 09:37:48 by secros            #+#    #+#             */
-/*   Updated: 2025/01/26 10:28:02 by secros           ###   ########.fr       */
+/*   Updated: 2025/01/30 18:47:30 by secros           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-volatile sig_atomic_t	signal_received;
+static volatile sig_atomic_t	g_signal_received;
 
 void	catch_signal(int sig_num, siginfo_t *info, void *context)
 {
 	(void) info;
 	(void) context;
 	if (sig_num == SIGUSR1)
-		signal_received = 1;
+		g_signal_received = 1;
 }
 
 int	send_bits(char c, int pid, int i)
 {
 	static int	time;
 
-	if (signal_received == 1)
+	if (g_signal_received == 1)
 	{
 		time = 0;
-		signal_received = 0;
-		if (c & (1 << i++))
+		g_signal_received = 0;
+		if (c & (1 << i))
 		{
 			if (kill(pid, SIGUSR2) == -1)
 				return (-1);
@@ -47,7 +47,7 @@ int	send_bits(char c, int pid, int i)
 		if (time >= TIMEOUT)
 			return (-2);
 		else
-			return (send_bits(c, pid, i));
+			return (0);
 	}
 }
 
@@ -66,7 +66,7 @@ int	send_str(char *str, int pid)
 			j++;
 		else if (x == -1)
 			return (-1);
-		else
+		else if (x == -2)
 			return (-2);
 		if (j == 8)
 		{
@@ -74,6 +74,9 @@ int	send_str(char *str, int pid)
 			i++;
 		}
 	}
+	usleep(10);
+	if (g_signal_received == 1)
+		return (0);
 	return (1);
 }
 
@@ -90,17 +93,17 @@ int	sig_init(struct sigaction *sig)
 	return (0);
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	struct sigaction	sig;
-	int	x;
-	int	y;
+	int					x;
+	int					y;
 
 	if (ac != 3)
 		return ((void) write(2, "Error.\nBad arguments", 21), 1);
 	if (sig_init(&sig) == -1)
 		return ((void) write(2, "Error.\nCouldn't create connection", 33), 1);
-	signal_received = 1;
+	g_signal_received = 1;
 	y = 0;
 	while (av[1][y])
 		if (ft_isdigit(av[1][y++]) == 0)
@@ -110,6 +113,6 @@ int main(int ac, char **av)
 		return ((void) write(2, "Error.\nCouldn't send signal", 27), 1);
 	else if (x == -2)
 		return ((void) write(2, "Error.\nTime out", 15), 1);
-	else
+	else if (x == 0)
 		return ((void) write(1, "Message delivered !\n", 20), 0);
 }

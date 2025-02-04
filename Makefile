@@ -11,7 +11,7 @@ ARFLAG = -rcs
 
 FILE = client.c
 
-SFILE = get_signal.c
+SFILE = server.c
 
 INCDIR = inc/
 
@@ -35,7 +35,7 @@ NAME = client
 
 SNAME = server
 
-all: $(NAME) $(SNAME)
+all: $(NAME) $(SNAME) $(LIB)
 
 $(NAME) : $(OBJS)
 	@echo "$(YELLOW)Creating final product : $(BLUE)$@...$(RESET)"
